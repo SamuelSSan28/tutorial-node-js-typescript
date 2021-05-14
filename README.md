@@ -1,7 +1,33 @@
 # Introdução
 Seja muito bem vindo ao tutorial de como começar um projeto com **Node.js**🚀 
 
-Para começar vamos começar configurando nosso ambiente de desenvolvimento, com algumas ferramentas fundamentais para desenvolver nossa aplicação backend.
+### Súmario
+ - [O que é o Node](##o-que-e-node)
+ - [Preparando o ambiente](#preparando-o-ambiente)
+ - [Lets code](#lets-code-💻)
+ 
+
+<br>
+
+## O que é o Node
+
+O Node.js pode ser definido como um ambiente de execução Javascript server-side.
+
+Isso significa que com o Node.js é possível criar aplicações Javascript para rodar como uma aplicação standalone em uma máquina, não dependendo de um browser para a execução, como estamos acostumados.
+
+A principal característica que diferencia o Node.JS de outras tecnologias, como PHP, Java, C#, é o fato de sua execução ser single-thread. Ou seja, apenas uma thread é responsável por executar o código Javascript da aplicação, enquanto que nas outras linguagens a execução é multi-thread.Em um servidor web utilizando linguagens tradicionais, para cada requisição recebida é criada uma nova thread para tratá-la. A cada requisição, serão demandados recursos computacionais (memória RAM, por exemplo) para a criação dessa nova thread. Uma vez que esses recursos são limitados, as threads não serão criadas infinitamente, e quando esse limite for atingido, as novas requisições terão que esperar a liberação desses recursos alocados para serem tratadas.
+
+A figura abaixo representa esse cenário em um servidor tradicional:
+
+![image](https://docs.oracle.com/cd/A87860_01/doc/network.817/a76933/mtsa.gif)
+
+<br>
+
+No modelo Node.js, apenas uma thread é responsável por tratar as requisições. Essa thread é chamada de Event Loop, e leva esse nome pois cada requisição é tratada como um evento. O Event Loop fica em execução esperando novos eventos para tratar, e para cada requisição, um novo evento é criado.
+
+Apesar de ser single-threaded, é possível tratar requisições concorrentes em um servidor Node.js. Enquanto o servidor tradicional utiliza o sistema multi-thread para tratar requisições concorrentes, o Node.js consegue o mesmo efeito através de chamadas de E/S (entrada e saída) não-bloqueantes. Isso significa que as operações de entrada e saída (ex: acesso a banco de dados e leitura de arquivos do sistema) são assíncronas e não bloqueiam a thread. Diferentemente dos servidores tradicionais, a thread não fica esperando que essas operações sejam concluídas para continuar sua execução.
+
+![image](https://www.luiztools.com.br/wp-content/uploads/2017/04/nodejs.jpg)
 
 ## Preparando o ambiente
 
@@ -242,9 +268,139 @@ Para instalar o editor de texto Visual Studio Code em qualquer um dos 3 sistemas
 
 Com as ferramentas instaladas, vamos para o nossa aplicação. Vamos utilizar algumas tecnologia que estão em alta no memomento como typeScript, GraphQl e ORM para contruir uma aplicação que realiza o cadastro de usuários e login, ou seja verifica se as credenciais passadas são válidas.
 
+### Por que usar o Typescript?
+
+TypeScript é um superset de JavaScript para desenvolvimento de aplicações escaláveis. Conforme o código JavaScript cresce, ele fica mais confuso, tornando cada vez mais difícil manter e reutilizar o código. JavaScript falha em abraçar a verificação de tipo forte e verificações de erro em tempo de compilação e TypeScript foi apresentado para preencher essa lacuna. (Extensão .ts)
+
+### Criação da configuração básica TypeScript 
+
 Crie uma pasta para aplicação, e abra o terminal nela. Para iniciar o projeto Node utilize o seguinte comando:
 
 ```bash
  yarn init -y
 ```
+
+Instale o Typescript. Como o node não entende a sintaxe do typescript vamos precisar da lib **ts-node-dev** para "traduzir" nosso código no formato que node entende. O -D serve para instalar como dependência de desenvolvimento. 
+
+```bash
+ yarn add typescript ts-node-dev -D
+
+```
+
+Use o comando a baixo para criar o arquivo de configuração do typescript
+```bash
+  tsc --init
+
+```
+
+Após gerar o tsconfig.json, faça essas alterações abaixo:
+ ```json
+  {
+    "strict":false, // Para remover algumas verificaçõs adicionais no desenvolvimento
+  }
+
+```
+
+A última etapa é ajustar os scripts no package.json conforme abaixo:
+
+```bash
+ "scripts": {
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts",
+  },
+```
+
+Com isso, você deve ser capaz de digitar yarn dev terminal para ver o nosso console.log. O ts-node-dev também deve recompilar se você alterar o código no server.tsarquivo. 
+
+### Configurando Express
+
+Instalando as dependências:
+
+```bash
+ yarn add cors express
+
+ yarn add @types/node @types/express   --save-dev
+```
+
+<br>
+
+### Criando o Server 
+
+Altere o conteúdo do server.ts para este:
+
+```js 
+import express from 'express';
+import cors from 'cors';
+
+const app = express(); 
+
+app.listen(3333,()=>console.log("Server Started!"));
+
+```
+
+### HTTP
+Para nos comunicarmos com nossa API vamos utilizar o protocolo http. Ele estabelece alguns métodos e parâmetros:
+
+#### ✅ Métodos
+
+- GET = Buscas
+- POST = Criação
+- PUT = Alteração
+- DELETE = Deletar
+- PATCH = Alterar uma informação específica
+
+<br>
+
+#### ✅ Parâmetros
+
+- Query Params (GET)
+  - Recebe os dados da requisição como parâmetro na URL. Pode conter um ou mais parâmetros:
+  - Exemplos:
+    - http://minhaapi.com/banks?name=nubank
+    - http://minhaapi.com/movies?name=transformers&actors=megan,peter
+
+- Route Params (GET,PUT,DELETE)
+  - Recebe os dados da requisição na rota. Melhor maneira para buscar algo específico, deletar ou atualizar usando o identificador único, por exemplo.
+  - Exemplos:
+    - GET: https://api.github.com/users/tgmarinho
+    - PUT: https://api.github.com/users/tgmarinho
+    - DELETE: https://api.github.com/users/380327
+
+- Body Params (POST e PUT)
+  - Recebe os dados da requisição no corpo da requisição, em um objeto em JSON. Sempre utilizando no método POST da requisição.
+  ```json 
+    { 
+      "name": "Thiago", "age": 18, "email": "thiago@mail.com"
+    }
+  ```
+
+<br>
+
+### Rotas
+
+Vamos criar a nossa primera rota.
+
+```js 
+app.get("/",(request,response) => {
+  //Response é o que vamos retornar para o usuário
+  response.send("Hello World")
+});
+
+```
+
+Uma outra possibilidade seria retornar um JSON.
+
+```js 
+app.get("/json",(request,response) => {
+  //Response é o que vamos retornar para o usuário
+  response.json({
+    message:"Hello World"
+  })
+});
+```
+
+Se você for no seu navegador e pesquisar por localhost:3333/ ou localhost:3333/json poderá ver a mensagem Hello world. 
+
+
+
+
 
