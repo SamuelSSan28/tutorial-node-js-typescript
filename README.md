@@ -1,5 +1,6 @@
 # Introdução
 Seja muito bem vindo ao tutorial de como começar um projeto com **Node.js**🚀 
+[Link para o vídeo]()
 
 ### Súmario
  - [O que é o Node](##o-que-e-node)
@@ -20,8 +21,6 @@ A principal característica que diferencia o Node.JS de outras tecnologias, como
 A figura abaixo representa esse cenário em um servidor tradicional:
 
 ![image](https://docs.oracle.com/cd/A87860_01/doc/network.817/a76933/mtsa.gif)
-
-<br>
 
 No modelo Node.js, apenas uma thread é responsável por tratar as requisições. Essa thread é chamada de Event Loop, e leva esse nome pois cada requisição é tratada como um evento. O Event Loop fica em execução esperando novos eventos para tratar, e para cada requisição, um novo evento é criado.
 
@@ -266,7 +265,7 @@ Para instalar o editor de texto Visual Studio Code em qualquer um dos 3 sistemas
 
 ## Lets code 💻
 
-Com as ferramentas instaladas, vamos para o nossa aplicação. Vamos utilizar algumas tecnologia que estão em alta no memomento como typeScript, GraphQl e ORM para contruir uma aplicação que realiza o cadastro de usuários e login, ou seja verifica se as credenciais passadas são válidas.
+Com as ferramentas instaladas, vamos para o nossa aplicação. Vamos utilizar algumas tecnologia que estão em alta no memomento como typeScript e ORM para contruir uma aplicação que realiza o cadastro de usuários e login, ou seja verifica se as credenciais passadas são válidas.
 
 ### Por que usar o Typescript?
 
@@ -325,16 +324,14 @@ Instalando as dependências:
 
 ### Criando o Server 
 
-Altere o conteúdo do server.ts para este:
+Altere o conteúdo do server.ts para este abaixo e execute `yarn dev` para iniciar o seu servidor.
 
 ```js 
 import express from 'express';
-import cors from 'cors';
 
 const app = express(); 
 
 app.listen(3333,()=>console.log("Server Started!"));
-
 ```
 
 ### HTTP
@@ -373,8 +370,6 @@ Para nos comunicarmos com nossa API vamos utilizar o protocolo http. Ele estabel
     }
   ```
 
-<br>
-
 ### Rotas
 
 Vamos criar a nossa primera rota.
@@ -399,6 +394,9 @@ app.get("/json",(request,response) => {
 ```
 
 Se você for no seu navegador e pesquisar por localhost:3333/ ou localhost:3333/json poderá ver a mensagem Hello world. 
+
+
+
 
 
 
