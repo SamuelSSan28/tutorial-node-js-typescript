@@ -1,12 +1,25 @@
-# Introdução
-Seja muito bem vindo ao tutorial de como começar um projeto com **Node.js**🚀 
+### Seja muito bem vindo/a ao tutorial de como começar um projeto com **Node.js**🚀 
 [Link para o vídeo]()
 
 ### Súmario
  - [O que é o Node](##o-que-e-node)
  - [Preparando o ambiente](#preparando-o-ambiente)
  - [Lets code](#lets-code-💻)
- 
+    - [Introdução]() - (Video)
+      - O que é Node
+      - Por que usar typescript ?
+      - Configurações Inicias
+    - [Server e Rotas]() - (Video)
+      - Express
+      - HTTP
+    - [Banco de dados e  ORM]() - (Video)
+      - Migrations
+      - Entidades
+      - Services e Controllers
+    - [Considerações Finais]() - (Video)
+      - Prática
+      - Sugestões de melhoria
+
 
 <br>
 
