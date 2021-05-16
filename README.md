@@ -17,7 +17,7 @@
       - Entidades
       - Services e Controllers
     - [Considerações Finais]() - (Video)
-      - Prática
+      - "Testes"
       - Sugestões de melhoria
 
 
