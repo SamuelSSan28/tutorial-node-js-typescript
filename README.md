@@ -263,6 +263,12 @@ Caso retorne a versão do Yarn (acima de 1.0, abaixo de 2.0), a instalação oco
 
 Para instalar o editor de texto Visual Studio Code em qualquer um dos 3 sistemas operacionais, basta [acessar o site](https://code.visualstudio.com/), baixar e rodar o executável.
 
+### Insomnia
+
+Para instalar a plataforma de realizar requisições Insomnia em qualquer um dos 3 sistemas operacionais, basta [acessar o site](https://insomnia.rest/download), baixar e rodar o executável.
+
+<br>
+
 ## Lets code 💻
 
 Com as ferramentas instaladas, vamos para o nossa aplicação. Vamos utilizar algumas tecnologia que estão em alta no memomento como typeScript e ORM para contruir uma aplicação que realiza o cadastro de usuários e login, ou seja verifica se as credenciais passadas são válidas.
@@ -302,7 +308,7 @@ Após gerar o tsconfig.json, faça essas alterações abaixo:
 
 A última etapa é ajustar os scripts no package.json conforme abaixo:
 
-```bash
+```json
  "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts",
   },
@@ -315,12 +321,11 @@ Com isso, você deve ser capaz de digitar yarn dev terminal para ver o nosso con
 Instalando as dependências:
 
 ```bash
- yarn add cors express
+ yarn add  express
 
- yarn add @types/node @types/express   --save-dev
+ yarn add @types/node @types/express  -D
 ```
 
-<br>
 
 ### Criando o Server 
 
@@ -358,15 +363,15 @@ Para nos comunicarmos com nossa API vamos utilizar o protocolo http. Ele estabel
 - Route Params (GET,PUT,DELETE)
   - Recebe os dados da requisição na rota. Melhor maneira para buscar algo específico, deletar ou atualizar usando o identificador único, por exemplo.
   - Exemplos:
-    - GET: https://api.github.com/users/tgmarinho
-    - PUT: https://api.github.com/users/tgmarinho
+    - GET: https://api.github.com/users/samuelssan28
+    - PUT: https://api.github.com/users/samuelssan28
     - DELETE: https://api.github.com/users/380327
 
 - Body Params (POST e PUT)
   - Recebe os dados da requisição no corpo da requisição, em um objeto em JSON. Sempre utilizando no método POST da requisição.
   ```json 
     { 
-      "name": "Thiago", "age": 18, "email": "thiago@mail.com"
+      "name": "Samuel", "age": 18, "email": "samuel@email.com"
     }
   ```
 
@@ -388,6 +393,7 @@ Uma outra possibilidade seria retornar um JSON.
 app.get("/json",(request,response) => {
   //Response é o que vamos retornar para o usuário
   response.json({
+    
     message:"Hello World"
   })
 });
@@ -396,9 +402,299 @@ app.get("/json",(request,response) => {
 Se você for no seu navegador e pesquisar por localhost:3333/ ou localhost:3333/json poderá ver a mensagem Hello world. 
 
 
+### Banco de Dados e ORM
+
+Por questoões de simplicidade de instalação, neste tutorial vamos utilizar o banco relacional **SQLite**. Além dele utilizaremos o framwork [**TypeORM**]() que facilita o trabalho com o banco e não se prende a um banco especifico. Caso você queira utilizar um MySQL ou Postgree é bem simples fazer essa alteração somente nas configuações do framework. Ou seja. não é necessário fazer alterações na implementação de inserts,selects e etc.
+
+Para iniciarmos temos instalar as seguintes dependencias:
+
+```bash
+  yarn add typeorm reflect-metadata sqlite3
+```
+
+Crie na raiz do seu projeto o arquivo ormconfig.json. Este é o arquivo de configuração do TypeORM. O campo type é qual o banco você vai utilizar, no nosso caso o Sqlite, o campo database onde o arquivo sqlite será armazenado. As migrations são registros que devemos fazer para manter a integridade do arquivo principalmente quando estivermos trabalhando em equipe. E as entidades são a representação das tabelas do banco em objetos.
+
+```json
+ {
+    "type":"sqlite",
+    "database":"./src/database/database.sqlite",
+    "migrations":["./src/database/migrations/**.ts"],
+    "cli":{
+        "migrationsDir":"./src/database/migrations"
+    },
+    "entities":["./src/entities/**.ts"]
+}
+```
+
+Agora vamos deixar o nosso repositório de acordo com o ormconfig. Dentro da pasta src crie a pasta database e entities. Dentro da pasta database crie a pasta das migrations e o arquivo index.ts. Dentro index vamos criar a conexão com o banco dessa forma:
+
+```ts
+  // src/database/index.ts
+
+  import {createConnection} from 'typeorm'
+
+  createConnection()
+```
+
+E importar essa conexão no server.ts. A importação é feita nesse formato pois queremos que a conexão seja criada assim que o servidor for iniciado.
+
+```ts
+  // src/server.ts
+  ...
+  import './database'
+```
 
 
+#### Migrations
+
+É uma forma de versionar o schema de sua aplicação. Migrations trabalha na manipulação da base de dados: criando, alterando ou removendo. Uma forma de controlar as alterações do seu banco juntamente com o versionamento de sua aplicação e compartilhar-la.
+
+Para criar uma migration, primeiro vamos criar um novo script no package.json
+
+```json
+  "scripts": {
+    "typeorm": "ts-node-dev node_modules/typeorm/cli.js",
+  },
+```
+
+Com isso feito podemos criar de fato a migration com o seguinte comando
+
+```bash
+  yarn typeorm migration:create -n NomeDaMigration
+```
+
+No nosso caso vamos criar a tabela do usuário, então: 
+
+```bash
+  yarn typeorm migration:create -n CreateUser
+```
+
+Se você olhar na pasta das migrations já foi criado um arquivo com esse formato:
+
+```ts
+  import {MigrationInterface, QueryRunner} from "typeorm";
+
+  export class CreateSettings1619708107361 implements MigrationInterface {
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        
+    }
+
+}
+```
+
+O método up() deve conter o que vai executado no banco, já o down() o que deve acontecer caso o up() dê errado.
+
+O nosso usuário vai conter um nome(string), email(string) e uma senha(string). Dessa forma conteúdo final da migration deve ficar dessa forma:
+
+```ts
+  import {MigrationInterface, QueryRunner} from "typeorm";
+
+  export class CreateSettings1619708107361 implements MigrationInterface {
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.createTable(
+            new Table({
+                    name:"users",
+                    columns:[
+                        {
+                            name:"id",
+                            type:"INTEGER",
+                            isPrimary:true,
+                            generationStrateg y:"increment",
+                            isGenerated:true
+
+                        },
+                        {
+                            name:"name",
+                            type:"varchar"
+                            
+                        },
+                        {
+                            name:"email",
+                            type:"varchar"
+                            
+                        },
+                    
+                        {
+                            name:"password",
+                            type:"varchar"           
+                        }
+                    ]
+            })
+        )
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.dropTable("users")
+    }
+
+}
+```
+
+Para vermos de fato a criação da tabela devemos usar o comando: 
+
+```bash
+  yarn typeorm migration:run
+```
+
+#### Entities
+
+É a representação das nossas tabelas do banco em objetos. Dessa forma, devemos criar a pasta entities, cmo definimos no ormconfig.json, dentro da pasta src.
+Crie dentra dela o arquivo User.ts. Como ela é uma representação da nossa tabela usuário deve conter os mesmo atributos que definimos na migration.
+
+```ts
+  import {Entity, Column, CreateDateColumn, PrimaryGeneratedColumn,} from 'typeorm';
+
+  @Entity("users") //nome da tabela
+  class User {
+
+      @PrimaryGeneratedColumn("increment")
+      id:number;
+
+      @Column()
+      email:string;
+
+      @Column()
+      password:string;
+
+      @Column()
+      name:string;
+      
+  } 
+
+export {User}
+```
+
+Isso vai gerar alguns erros. Para resolver precisamos habilitar algumas opções no tsconfig.json que está na raiz do nosso projeto.
+
+ ```json
+  {
+     /* Experimental Options */
+     "experimentalDecorators": true,              /* Enables experimental support for ES7 decorators. */
+     "emitDecoratorMetadata": true               /* Enables experimental support for emitting type metadata for decorators. */
+  }
+```
+
+#### Services
+
+É a representação das nossas interações com o banco para cada entidade. Ou seja, onde vamos implementar inserts, selects e etc. No nosso exemplo vamo cria o método create 
+para criar um usuário e readOne para verificar se um usuário existe.
+
+```ts
+  import {  getRepository, Repository } from 'typeorm';
+  import { User } from '../entities/User';
 
 
+  class UsersService{
+    private usersRepository:Repository<User>;
+
+    constructor(){
+        this.usersRepository = getRepository(User);
+    }
+    
+    async create(email:string , password:string){
+
+        const user = await this.usersRepository.create({email,password})
+
+        await this.usersRepository.save(user)
+
+        return user.id
+    }
+
+    async login(email:string , password:string){
+
+        const user = await this.usersRepository.findOneOrFail({where:{email}});
+
+        if(!(user.password === password)){
+            throw new Error("Usuário ou senha incorretos!")
+        }
+
+        return { auth:true }
+    }     
+}
+
+export {UsersService}
+```
+
+#### Controllers
+
+É a representação das requisições que serão feitas para a API. E também para não poluir o server.ts.
+
+```ts
+  import {Request,Response} from 'express'
+  import { UsersService } from '../services/UsersService';
 
 
+  class UsersController{
+      
+      async create(request:Request,response:Response):Promise<Response>{
+          try {
+              const { password,username } = request.params;
+
+              const UsersService = new UsersService();
+
+              const user = await UsersService.create(username,password)
+
+              return response.json({ message: 'User successfully created !',user})
+
+          } catch (error) {
+              return response.status(400).json({ error })
+          }
+
+      }
+
+      async login(request:Request,response:Response):Promise<Response>{
+          try {
+              const { password,username } = request.body;
+
+              const UsersService = new UsersService();
+
+              const auth = await UsersService.login(username,password);
+
+              return response.json(auth)
+
+          } catch (error) {
+              console.log("rro: ",error)
+              return response.status(400).json({ error })
+          }
+
+      }
+      
+  }
+
+  export {UsersController}
+```
+
+Agora no server.ts vamos chamar os controllers e criar as rotas para o usuário. O seu arquive server.ts de ficar dessa forma: 
+
+```js 
+// src/server.ts
+
+import express from 'express';
+import { UsersController } from '../Controllers/UsersService';
+
+const app = express();
+
+const userController = new UsersController()
+
+app.get("/users/:email/:password",userController.login);
+
+app.post("/users",userController.create);
+
+app.listen(3333,()=>console.log("Server Started!"));
+
+```
+
+## 🙌 Considerações Finais
+
+Concluímos nosso tutorial de Node.JS com Typescript e ORM, espero que tenha contrinuído a jua jornada em busca de conhecimento. Como a ideia é ser uma aplicação bem simples, ela tem muitos pontos para melhorar, alguns deles que você pode aproveitar e implementar são:
+
+  - As senhas altualmente estão sendo salvas da forma que são enviadas na requisição, uma boa prática é sempre criptografar antes de salvar. A biblioteca [CryptoJS](https://www.npmjs.com/package/crypto-js) tem vários algoritmos que você pode utilizar para criptografar a senha.
+
+  - Simplificar ainda mais o arquivo server.ts e criar um arquivo só para as rotas da sua APi utilizando o Router do express.
+  
