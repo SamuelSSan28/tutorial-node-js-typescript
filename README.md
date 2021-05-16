@@ -1,5 +1,4 @@
 ### Seja muito bem vindo/a ao tutorial de como começar um projeto com **Node.js**🚀 
-[Link para o vídeo]()
 
 ### Súmario
  - [O que é o Node](##o-que-e-node)
